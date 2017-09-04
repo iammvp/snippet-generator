@@ -1,6 +1,6 @@
 <template>
     <div class="input">
-        <input class="input-component" type="text" :placeholder="placeholder">
+        <input class="input-component" type="text" :placeholder="placeholder" @input="input_changed">
     </div>
 </template>
 
@@ -16,6 +16,11 @@ export default {
     data() {
         return {
 
+        }
+    },
+    methods:{
+        input_changed(e){
+            this.$emit('getInputValue',e.target.value);
         }
     }
 }
