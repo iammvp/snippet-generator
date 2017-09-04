@@ -17,7 +17,7 @@ export default {
 
 <style lang="scss" scoped>
 .snippet{
-    flex: 0.618;
+    flex: 1;
     background-color: #fff;
 }
 </style>
