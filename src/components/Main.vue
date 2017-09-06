@@ -12,12 +12,16 @@
         </div>
         <div class="main__right">
             <div class="main__right-snippet">
-                <div class="main__right-snippet-code"><pre>{{vscode_snippet}}</pre></div>
+                <div class="main__right-snippet-code">
+                    <pre @dblclick.stop.prevent="copy_snippet">{{active_snippet}}</pre>
+                    <p class="main__right-copy-tips">double click to copy your snippet!</p>
+                </div>
             </div>
             <div class="main__right-ide-type">
                 <p class="main__right-ide-name" :class="{'main__right-ide-name--active' : ide == selected_ide}" v-for="(ide,index) in ides" :key="index" @click="change_ide(ide)">{{ide}}</p>
             </div>
         </div>
+        <p class="copy-notification" :class="{'copy-notification-animation' : is_show_notification == true}">copied!</p>
     </div>
 </template>
 
@@ -33,15 +37,16 @@ export default {
             ides: ['VSCode', 'Atom', 'Sublime'],
             selected_ide: 'VSCode',
             code: '',
-            description:'',
-            prefix:'',
+            description: '',
+            prefix: '',
+            is_show_notification: false,
         }
     },
     methods: {
-        set_description(description){
+        set_description(description) {
             this.description = description;
         },
-        set_prefix(prefix){
+        set_prefix(prefix) {
             this.prefix = prefix;
         },
         change_ide(ide) {
@@ -56,33 +61,66 @@ export default {
                 snippet = '';
             for (let i = 0; i < len; i++) {
                 if (i == len - 1) {
-                    snippet += `"${input_code[i]}"`;
+                    snippet += `    "${input_code[i]}"`;
                 } else {
-                    snippet += `"${input_code[i]}",\n`;
+                    snippet += `    "${input_code[i]}",\n`;
                 }
             }
             return snippet;
         },
+        process_atom_snippet() {
+            let input_code = this.decode_input(),
+                snippet = '';
+            input_code.map(c => {
+                snippet += `    ${c}\n`;
+            });
+            return snippet;
+        },
+        copy_snippet(e) {
+            if (this.is_show_notification == false) {
+                if (document.selection) {
+                    var range = document.body.createTextRange();
+                    range.moveToElementText(e.target);
+                    range.select();
+                } else if (window.getSelection) {
+                    var range = document.createRange();
+                    range.selectNode(e.target);
+                    window.getSelection().removeAllRanges();
+                    window.getSelection().addRange(range);
+                }
+                document.execCommand("copy");
+                this.is_show_notification = true;
+                setTimeout(() => {
+                    this.is_show_notification = false;
+                }, 1500);
+            }
+        }
     },
     computed: {
         vscode_snippet() {
-            this.decode_input();
-            return `
-"${this.description}": {
-"prefix": "${this.prefix}",
-"body": [
-${this.process_vscode_snippet()}
-],
-"description": "${this.description}"
-}
-            `;
+            return `"${this.description}": {\n  "prefix": "${this.prefix}",\n  "body": [\n${this.process_vscode_snippet()}\n  ],\n  "description": "${this.description}"\n}`;
+        },
+        atom_snippet() {
+            return `'${this.description}':\n  'prefix': '${this.prefix}'\n  'body':"""\n${this.process_atom_snippet()}\n  """`
+        },
+        sublime_snippet() {
+            return `<snippet>\n  <content><![CDATA[\n${this.code}\n  ]]></content >\n  <description>${this.description}</description>\n  <tabTrigger><${this.prefix}/tabTrigger>\n  <!-- Optional: Set a scope to limit where the snippet will trigger -->\n  <!-- <scope >source.python</scope > -->\n</snippet >`;
+        },
+        active_snippet() {
+            if (this.selected_ide == 'VSCode') {
+                return this.vscode_snippet;
+            } else if (this.selected_ide == 'Atom') {
+                return this.atom_snippet;
+            } else if (this.selected_ide == "Sublime") {
+                return this.sublime_snippet;
+            }
         }
     }
 }
 
 </script>
 
-<style lang="scss" scoped>
+<style lang="scss">
 @import '../style/color.scss';
 .main {
     flex: 1;
@@ -131,9 +169,27 @@ ${this.process_vscode_snippet()}
             flex: 1;
             background-color: #fff;
             display: flex;
+            position: relative;
+            .main__right-copy-tips {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+            }
+            pre {
+                font-family: inherit;
+                font-size: 18px;
+                line-height: 150%;
+                padding: 20px;
+                flex: 1;
+                &::selection {
+                    color: #fff;
+                    background-color: $theme_color;
+                }
+            }
             .main__right-snippet-code {
                 flex: 1;
                 border: 1px solid $font_color;
+                display: flex;
             }
         }
 
@@ -155,6 +211,37 @@ ${this.process_vscode_snippet()}
                     color: $theme_color;
                     background-color: #fff;
                 }
+            }
+        }
+    }
+
+    .copy-notification {
+        position: fixed;
+        top: 0;
+        right: 0;
+        color: $theme_color;
+        font-size: 16px;
+        height: 60px;
+        line-height: 60px;
+        background-color: #fff;
+        width: 130px;
+        text-align: center;
+        transform: translateX(100%);
+    }
+    .copy-notification-animation {
+        animation: notification 1.5s;
+        @keyframes notification {
+            0% {
+                transform: translateX(100%);
+            }
+            25% {
+                transform: translateX(0);
+            }
+            50% {
+                transform: translateX(0);
+            }
+            100% {
+                transform: translateX(100%);
             }
         }
     }
