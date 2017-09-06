@@ -2,9 +2,9 @@
     <div class="main">
         <div class="main__left">
             <div class="main__left-top">
-                <input-component placeholder="description" @getInputValue="set_description"></input-component>
+                <input-component placeholder="description" @setInputValue="set_description"></input-component>
                 <div class="main__left-top__gap"></div>
-                <input-component placeholder="prefix" @getInputValue="set_prefix"></input-component>
+                <input-component placeholder="prefix" @setInputValue="set_prefix"></input-component>
             </div>
             <div class="main__left-bot">
                 <textarea class="main__left-bot-input" placeholder="your code" v-model="code"></textarea>
@@ -12,14 +12,12 @@
         </div>
         <div class="main__right">
             <div class="main__right-snippet">
-                <div class="main__right-snippet-code">
-                    <pre @dblclick.stop.prevent="copy_snippet">{{active_snippet}}</pre>
-                    <p class="main__right-copy-tips">double click to copy your snippet!</p>
-                </div>
+                <textarea class="main__right-snippet-output" @dblclick.stop.prevent="copy_snippet" v-model="active_snippet" readonly></textarea>
+                <p class="main__right-copy-tips">double click to copy your snippet!</p>
             </div>
-            <div class="main__right-ide-type">
-                <p class="main__right-ide-name" :class="{'main__right-ide-name--active' : ide == selected_ide}" v-for="(ide,index) in ides" :key="index" @click="change_ide(ide)">{{ide}}</p>
-            </div>
+        </div>
+        <div class="main__ide-type">
+            <p class="main__ide-name" :class="{'main__ide-name--active' : ide == selected_ide}" v-for="(ide,index) in ides" :key="index" @click="change_ide(ide)">{{ide}}</p>
         </div>
         <p class="copy-notification" :class="{'copy-notification-animation' : is_show_notification == true}">copied!</p>
     </div>
@@ -175,46 +173,37 @@ export default {
                 top: 20px;
                 right: 20px;
             }
-            pre {
-                font-family: inherit;
-                font-size: 18px;
-                line-height: 150%;
+            .main__right-snippet-output {
+                resize: none;
+                border: 1px solid $font_color;
+                border-radius: 5px;
                 padding: 20px;
                 flex: 1;
-                &::selection {
-                    color: #fff;
-                    background-color: $theme_color;
-                }
-            }
-            .main__right-snippet-code {
-                flex: 1;
-                border: 1px solid $font_color;
-                display: flex;
-            }
-        }
-
-        .main__right-ide-type {
-            .main__right-ide-name {
-                height: 60px;
-                line-height: 60px;
-                width: 140px;
-                color: #fff;
                 font-size: 18px;
-                text-align: center;
-                background: #bbb;
-                cursor: pointer;
-                margin-bottom: 10px;
-                &:last-child {
-                    margin-bottom: 0px;
-                }
-                &.main__right-ide-name--active {
-                    color: $theme_color;
-                    background-color: #fff;
-                }
+                font-family: inherit;
             }
         }
     }
-
+    .main__ide-type {
+        .main__ide-name {
+            height: 60px;
+            line-height: 60px;
+            width: 140px;
+            color: #fff;
+            font-size: 18px;
+            text-align: center;
+            background: #bbb;
+            cursor: pointer;
+            margin-bottom: 10px;
+            &:last-child {
+                margin-bottom: 0px;
+            }
+            &.main__ide-name--active {
+                color: $theme_color;
+                background-color: #fff;
+            }
+        }
+    }
     .copy-notification {
         position: fixed;
         top: 0;

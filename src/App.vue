@@ -24,10 +24,12 @@ export default {
 <style lang="scss">
 @import './style/color.scss';
 
+body {
+    display: flex;
+}
 
 #app {
-    width: 100%;
-    height: 100%;
+    flex: 1;
     background-color: $theme_color;
     display: flex;
     flex-direction: column;

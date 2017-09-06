@@ -20,7 +20,7 @@ export default {
     },
     methods:{
         input_changed(e){
-            this.$emit('getInputValue',e.target.value);
+            this.$emit('setInputValue',e.target.value);
         }
     }
 }
