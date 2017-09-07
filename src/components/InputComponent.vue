@@ -39,7 +39,6 @@ export default {
         height: 60px;
         width: 100%;
         font-size: 18px;
-        color: $font_color;
         font-family: inherit;
         &:hover,
         &:focus {

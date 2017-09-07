@@ -2,6 +2,8 @@
     <div class="main">
         <div class="main__left">
             <div class="main__left-top">
+                <input-component :placeholder="scope_placeholder" @setInputValue="set_scope" v-show="selected_ide !== 'VSCode'"></input-component>
+                <div class="main__left-top__gap"></div>
                 <input-component placeholder="description" @setInputValue="set_description"></input-component>
                 <div class="main__left-top__gap"></div>
                 <input-component placeholder="prefix" @setInputValue="set_prefix"></input-component>
@@ -35,12 +37,16 @@ export default {
             ides: ['VSCode', 'Atom', 'Sublime'],
             selected_ide: 'VSCode',
             code: '',
+            scope: '',
             description: '',
             prefix: '',
             is_show_notification: false,
         }
     },
     methods: {
+        set_scope(scope) {
+            this.scope = scope;
+        },
         set_description(description) {
             this.description = description;
         },
@@ -95,14 +101,21 @@ export default {
         }
     },
     computed: {
+        scope_placeholder() {
+            if (this.selected_ide == 'Atom') {
+                return 'scope(eg:html)';
+            }  else if (this.selected_ide == "Sublime") {
+                return 'scope(eg:html), blank for all types';
+            }
+        },
         vscode_snippet() {
             return `"${this.description}": {\n  "prefix": "${this.prefix}",\n  "body": [\n${this.process_vscode_snippet()}\n  ],\n  "description": "${this.description}"\n}`;
         },
         atom_snippet() {
-            return `'${this.description}':\n  'prefix': '${this.prefix}'\n  'body':"""\n${this.process_atom_snippet()}\n  """`
+            return `'.source.${this.scope}':\n  '${this.description}':\n    'prefix': '${this.prefix}'\n    'body':"""\n${this.process_atom_snippet()}\n    """`
         },
         sublime_snippet() {
-            return `<snippet>\n  <content><![CDATA[\n${this.code}\n  ]]></content >\n  <description>${this.description}</description>\n  <tabTrigger><${this.prefix}/tabTrigger>\n  <!-- Optional: Set a scope to limit where the snippet will trigger -->\n  <!-- <scope >source.python</scope > -->\n</snippet >`;
+            return `<snippet>\n  <content><![CDATA[\n${this.code}\n  ]]></content >\n  <description>${this.description}</description>\n  <tabTrigger><${this.prefix}/tabTrigger>\n  <!-- Optional: Set a scope to limit where the snippet will trigger -->\n  ${this.scope == '' ? '<!-- <scope ></scope > -->' : `<scope >source.${this.scope}</scope >`}\n</snippet >`;
         },
         active_snippet() {
             if (this.selected_ide == 'VSCode') {
