@@ -115,7 +115,7 @@ export default {
             return `'.source.${this.scope}':\n  '${this.description}':\n    'prefix': '${this.prefix}'\n    'body':"""\n${this.process_atom_snippet()}\n    """`
         },
         sublime_snippet() {
-            return `<snippet>\n  <content><![CDATA[\n${this.code}\n  ]]></content >\n  <description>${this.description}</description>\n  <tabTrigger><${this.prefix}/tabTrigger>\n  <!-- Optional: Set a scope to limit where the snippet will trigger -->\n  ${this.scope == '' ? '<!-- <scope ></scope > -->' : `<scope >source.${this.scope}</scope >`}\n</snippet >`;
+            return `<snippet>\n  <content><![CDATA[\n${this.code}\n  ]]></content >\n  <description>${this.description}</description>\n  <tabTrigger>${this.prefix}</tabTrigger>\n  <!-- Optional: Set a scope to limit where the snippet will trigger -->\n  ${this.scope == '' ? '<!-- <scope ></scope > -->' : `<scope >source.${this.scope}</scope >`}\n</snippet >`;
         },
         active_snippet() {
             if (this.selected_ide == 'VSCode') {
